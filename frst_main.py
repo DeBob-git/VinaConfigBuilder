@@ -72,6 +72,7 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  
                
+       # w.setWindowTitle("VinaConfigBuilder")
         
         self.exitButt.clicked.connect(self._exit)
         self.LIGC_BUTT.clicked.connect(self._ligCentroid)
@@ -143,8 +144,10 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
         
         if fileName[0]!='':
             f = open(fileName[0], "w")
-            #f.write('receptor=' + self.recept.text())
-            #f.write('\n')
+            if self.recept.text()!='':
+                f.write('receptor=' + self.recept.text())
+                f.write('\n')
+            
             f.write('exhaustiveness=' + str(self.exhaust.value()))
             f.write('\n')
             
@@ -257,6 +260,8 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
         self._clear_list()
         
         sPlip = self.sInAMK.text()
+        sPlip = sPlip.replace(" ","")
+        self.sInAMK.setText(sPlip)
         sPlip = sPlip.split(',')
         errs=0
 # ============================= fill AMK        
@@ -381,6 +386,7 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
         Z=[]
         
         sPlip = self.sInAMK.text()
+        sPlip.replace(' ','')
         sPlip = sPlip.split(',')
         
         for sp in sPlip:
@@ -430,6 +436,7 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
         
         # ================================ all AMK from PLIP string
         sPlip = self.sInAMK.text()
+        sPlip.replace(' ','')
         sPlip = sPlip.split(',')
         
         if tip==1 or tip==3: 
@@ -512,19 +519,19 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
             
             if lst[0][0:4] == 'ATOM' or lst[0][0:6] == 'HETATM':
                 tkatm = atm()
-                if lst[0][0:4] == 'ATOM':
+                if lst[0][0:4] == 'ATOM' and  lst[3]!='UNK':
                     tkatm.tip = lst[0][0:4]
-                    
+                    tkatm.sname=lst[3]
+                    tkatm.letter = lst[4]
+      
                 if len(lst[0])>=6 and lst[0][0:6] == 'HETATM':
                     lst_n=st[:6] + ' ' + st[6:]
                     lst=' '.join(lst_n.split())
                     lst=lst.split(' ')
                     tkatm.tip = lst[0]
+                    tkatm.sname=lst[3]
+                    tkatm.letter = lst[4]
                     
-                tkatm.pos=lst[1]
-                tkatm.sname=lst[3]
-                tkatm.letter = lst[4]
-                
                 if len(lst[4])>1:
                     tkatm.lname=lst[4]
                     tkatm.X=lst[5]
@@ -534,7 +541,17 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
                     tkatm.lname=lst[4]+lst[5]
                     tkatm.X=lst[6]
                     tkatm.Y=lst[7]
-                    tkatm.Z=lst[8]                    
+                    tkatm.Z=lst[8]                        
+                    
+                if lst[0][0:4] == 'ATOM' and lst[3]=='UNK':
+                    tkatm.tip = 'HETATM'
+                    tkatm.sname=lst[3] #+lst[4] 
+                    tkatm.lname='A'+lst[4] 
+                    tkatm.X=lst[5]
+                    tkatm.Y=lst[6]
+                    tkatm.Z=lst[7]                      
+                    
+                tkatm.pos=lst[1]
 
                 if tkatm.lname in self.atmDict:
                     xx = []
@@ -598,6 +615,7 @@ class mainApp(QtWidgets.QMainWindow,frst2.Ui_MainWindow):
 def main():
     app = QtWidgets.QApplication(sys.argv)  # РќРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ QApplication
     window = mainApp()                      # РЎРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ РєР»Р°СЃСЃР° ExampleApp
+    window.setWindowTitle("VinaConfigBuilder")
     window.show()                           # РџРѕРєР°Р·С‹РІР°РµРј РѕРєРЅРѕ
     app.exec_()                             # Рё Р·Р°РїСѓСЃРєР°РµРј РїСЂРёР»РѕР¶РµРЅРёРµ
 
